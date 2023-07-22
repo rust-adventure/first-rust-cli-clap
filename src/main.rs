@@ -2,6 +2,7 @@ use clap::Parser;
 
 /// Scaffold a new post for your blog
 #[derive(Parser, Debug)]
+#[clap(version)]
 struct Args {
     /// The layout the post should use
     #[clap(short, long, default_value = "post")]
