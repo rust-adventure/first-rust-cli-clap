@@ -1,3 +1,4 @@
+use camino::Utf8PathBuf;
 use clap::{error::ErrorKind, CommandFactory, Parser};
 use std::fs;
 
@@ -25,21 +26,33 @@ struct Args {
 
     /// Where to put the file
     #[clap(short, long, default_value = "content")]
-    output_dir: String,
+    output_dir: Utf8PathBuf,
 }
 fn main() {
     let args = Args::parse();
     dbg!(&args);
-    let filename =
-        format!("{}/{}.md", args.output_dir, args.title);
+
+    if !args.output_dir.exists() {
+        let mut cmd = Args::command();
+        cmd.error(
+            ErrorKind::ValueValidation,
+            format!(
+                "output directory `{}` doesn't exist",
+                args.output_dir
+            ),
+        )
+        .exit();
+    }
+
+    let mut filename = args.output_dir.join(&args.title);
+    filename.set_extension("md");
 
     if let Err(error) = fs::write(&filename, args.title) {
         let mut cmd = Args::command();
         cmd.error(
             ErrorKind::Io,
             format!(
-                "failed to write file at `{filename}`\n\t{}",
-                error
+                "failed to write file at `{filename}`\n\t{error}",
             ),
         )
         .exit();
