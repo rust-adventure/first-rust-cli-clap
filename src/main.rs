@@ -1,4 +1,4 @@
-use clap::Parser;
+use clap::{error::ErrorKind, CommandFactory, Parser};
 use std::fs;
 
 /// Scaffold a new post for your blog
@@ -33,5 +33,15 @@ fn main() {
     let filename =
         format!("{}/{}.md", args.output_dir, args.title);
 
-    fs::write(filename, args.title).unwrap();
+    if let Err(error) = fs::write(&filename, args.title) {
+        let mut cmd = Args::command();
+        cmd.error(
+            ErrorKind::Io,
+            format!(
+                "failed to write file at `{filename}`\n\t{}",
+                error
+            ),
+        )
+        .exit();
+    }
 }
