@@ -1,4 +1,5 @@
 use clap::Parser;
+use std::fs;
 
 /// Scaffold a new post for your blog
 #[derive(Parser, Debug)]
@@ -28,5 +29,9 @@ struct Args {
 }
 fn main() {
     let args = Args::parse();
-    dbg!(args);
+    dbg!(&args);
+    let filename =
+        format!("{}/{}.md", args.output_dir, args.title);
+
+    fs::write(filename, args.title).unwrap();
 }
